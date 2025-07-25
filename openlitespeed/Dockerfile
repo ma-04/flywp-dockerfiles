@@ -41,6 +41,24 @@ RUN wget -O - https://repo.litespeed.sh | bash \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean && apt-get autoremove -y
 
+# Install PHP extensions
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ${LSPHP}-bcmath ${LSPHP}-gettext ${LSPHP}-curl ${LSPHP}-dom \
+    ${LSPHP}-exif ${LSPHP}-fileinfo ${LSPHP}-gd ${LSPHP}-hash \
+    ${LSPHP}-intl ${LSPHP}-json ${LSPHP}-mbstring \
+    ${LSPHP}-mysqli ${LSPHP}-opcache ${LSPHP}-openssl \
+    ${LSPHP}-pcre ${LSPHP}-pdo-mysql \
+    ${LSPHP}-pdo-sqlite ${LSPHP}-redis \
+    ${LSPHP}-shmop ${LSPHP}-simplexml \
+    ${LSPHP}-sodium ${LSPHP}-soap \
+    ${LSPHP}-sockets ${LSPHP}-ssh2 \
+    ${LSPHP}-tokenizer ${LSPHP}-xml \
+    ${LSPHP}-xmlreader ${LSPHP}-xmlwriter \
+    ${LSPHP}-zip ${LSPHP}-zlib \
+    ${LSPHP}-apcu ${LSPHP}-ftp ${LSPHP}-relay \
+    && rm -rf /var/lib/apt/lists/* && \
+    apt-get clean && apt-get autoremove -y
+
 # Install Composer and WP-CLI
 RUN wget -qO /usr/local/bin/composer https://getcomposer.org/download/latest-stable/composer.phar \
     && chmod +x /usr/local/bin/composer \
