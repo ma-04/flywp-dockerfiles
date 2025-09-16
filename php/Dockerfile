@@ -8,10 +8,11 @@ RUN apk add --no-cache curl \
 
 # Stage for WP-CLI
 FROM php:${PHP_VERSION}-cli-alpine as wpcli_builder
-RUN apk add --no-cache curl \
+RUN apk add --no-cache curl git openssh-client \
     && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
     && chmod +x wp-cli.phar \
     && mv wp-cli.phar /usr/local/bin/wp \
+    && mkdir ~/.ssh/ \
     && wp package install wp-cli/doctor-command:@stable --allow-root \
     && mkdir -p /home/www-data/.wp-cli \
     && mv ~/.wp-cli/packages /home/www-data/.wp-cli/ \
