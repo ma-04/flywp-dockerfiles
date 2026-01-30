@@ -26,18 +26,18 @@ LABEL maintainer="Tareq Hasan <tareq@wedevs.com>"
 # Install build dependencies
 RUN set -e && \
     apk add --no-cache --virtual .build-deps \
-    autoconf g++ make bash sed ghostscript mysql-client imagemagick shadow msmtp unzip linux-headers ca-certificates \
+    autoconf g++ make bash sed ghostscript mysql-client imagemagick shadow msmtp unzip linux-headers \
     freetype-dev icu-dev openssl-dev imagemagick-dev libjpeg-turbo-dev libwebp-dev libpng-dev libzip-dev libssh2-dev git lz4-dev libxpm-dev
 
 # Install the Microsoft ODBC driver for SQL Server (Linux)
-RUN apk add --no-cache ca-certificates curl gnupg && \
+RUN apk add --no-cache ca-certificates wget gnupg && \
     ARCH=$(uname -m) && \
     case $ARCH in x86_64) ARCH="amd64";; aarch64|arm64) ARCH="arm64";; *) echo "Unsupported architecture: $ARCH" && exit 1;; esac && \
-    curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --import - && \
-    curl -O -k "https://download.microsoft.com/download/9dcab408-e0d4-4571-a81a-5a0951e3445f/msodbcsql18_18.6.1.1-1_${ARCH}.apk" && \
-    curl -O -k "https://download.microsoft.com/download/9dcab408-e0d4-4571-a81a-5a0951e3445f/msodbcsql18_18.6.1.1-1_${ARCH}.sig" && \
-    curl -O -k "https://download.microsoft.com/download/b60bb8b6-d398-4819-9950-2e30cf725fb0/mssql-tools18_18.6.1.1-1_${ARCH}.apk" && \
-    curl -O -k "https://download.microsoft.com/download/b60bb8b6-d398-4819-9950-2e30cf725fb0/mssql-tools18_18.6.1.1-1_${ARCH}.sig" && \
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --import - && \
+    wget "https://download.microsoft.com/download/9dcab408-e0d4-4571-a81a-5a0951e3445f/msodbcsql18_18.6.1.1-1_${ARCH}.apk" && \
+    wget "https://download.microsoft.com/download/9dcab408-e0d4-4571-a81a-5a0951e3445f/msodbcsql18_18.6.1.1-1_${ARCH}.sig" && \
+    wget "https://download.microsoft.com/download/b60bb8b6-d398-4819-9950-2e30cf725fb0/mssql-tools18_18.6.1.1-1_${ARCH}.apk" && \
+    wget "https://download.microsoft.com/download/b60bb8b6-d398-4819-9950-2e30cf725fb0/mssql-tools18_18.6.1.1-1_${ARCH}.sig" && \
     gpg --verify msodbcsql18_18.6.1.1-1_${ARCH}.sig msodbcsql18_18.6.1.1-1_${ARCH}.apk && \
     gpg --verify mssql-tools18_18.6.1.1-1_${ARCH}.sig mssql-tools18_18.6.1.1-1_${ARCH}.apk && \
     apk add --allow-untrusted msodbcsql18_18.6.1.1-1_${ARCH}.apk mssql-tools18_18.6.1.1-1_${ARCH}.apk && \
