@@ -80,11 +80,11 @@ COPY --from=wpcli_builder /home/www-data/.wp-cli /home/www-data/.wp-cli
 # Final stage
 FROM php:${PHP_VERSION}-fpm-alpine
 
-# Install runtime dependencies
+# Install runtime dependencies (including unixODBC for MSSQL driver)
 RUN apk add --no-cache \
     bash sed ghostscript mysql-client imagemagick shadow msmtp unzip linux-headers \
     freetype icu openssl imagemagick libjpeg-turbo libwebp libpng libzip libssh2 git libgomp \
-    libssh2-dev lz4 libavif libxpm lz4-libs && \
+    libssh2-dev lz4 libavif libxpm lz4-libs unixodbc && \
     rm -rf /var/cache/apk/*
 
 # Copy built extensions and configs from the builder stage
@@ -92,6 +92,10 @@ COPY --from=builder /usr/local/etc/php /usr/local/etc/php
 COPY --from=builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions
 COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder /home/www-data/.wp-cli /home/www-data/.wp-cli
+
+# Copy Microsoft ODBC driver and tools for SQL Server
+COPY --from=builder /opt/microsoft /opt/microsoft
+COPY --from=builder /etc/odbcinst.ini /etc/odbcinst.ini
 
 # Ensure the entrypoint script is copied and has executable permissions
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
