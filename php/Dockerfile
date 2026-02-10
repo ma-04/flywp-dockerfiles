@@ -80,11 +80,12 @@ COPY --from=wpcli_builder /home/www-data/.wp-cli /home/www-data/.wp-cli
 # Final stage
 FROM php:${PHP_VERSION}-fpm-alpine
 
-# Install runtime dependencies (including unixODBC for MSSQL driver)
+# Install runtime dependencies (including libraries for PHP extensions)
 RUN apk add --no-cache \
     bash sed ghostscript mysql-client imagemagick shadow msmtp unzip linux-headers \
     freetype icu openssl imagemagick libjpeg-turbo libwebp libpng libzip libssh2 git libgomp \
-    libssh2-dev lz4 libavif libxpm lz4-libs unixodbc && \
+    libssh2-dev lz4 libavif libxpm lz4-libs \
+    unixodbc libpq libldap c-client snappy aspell-libs libxslt gmp && \
     rm -rf /var/cache/apk/*
 
 # Copy built extensions and configs from the builder stage
