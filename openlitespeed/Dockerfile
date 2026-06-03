@@ -4,7 +4,7 @@ FROM ubuntu:22.04
 # Set ARGs for customization
 ARG PHP_VERSION=8.2
 ARG LSPHP=lsphp82
-ARG OLS_VERSION=1.8.5
+ARG OLS_VERSION=1.9.0
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TARGETPLATFORM
 
@@ -54,6 +54,11 @@ RUN groupmod -g 999 lsadm
 # Create necessary directories
 RUN mkdir -p /var/www/html/public /var/www/html/logs \
     && chown -R www-data:www-data /var/www/html /usr/local/lsws
+
+# Create the default PHP session directory (lsphp's session.save_path)
+RUN mkdir -p /var/lib/php/sessions \
+    && chown www-data:www-data /var/lib/php/sessions \
+    && chmod 0700 /var/lib/php/sessions
 
 RUN echo "# Custom configurations" >> /usr/local/lsws/${LSPHP}/etc/php/${PHP_VERSION}/litespeed/php.ini && \
     echo "include_dir /usr/local/etc/php/custom-conf.d" >> /usr/local/lsws/${LSPHP}/etc/php/${PHP_VERSION}/litespeed/php.ini
