@@ -133,3 +133,53 @@ To verify the Node.js image structure and installed tools:
 # Run structure tests
 container-structure-test test --image meghsh/node:25 --config node-structure-test.yaml
 ```
+
+### Builder
+
+Build-time image used during deployments to compile applications (Laravel,
+Bedrock, Node apps). It is `FROM meghsh/php:<version>` — so it carries the exact
+PHP version, full extension set, Composer, and WP-CLI of the runtime image — with
+Node.js, `npm`, `yarn`, and `pnpm` layered on top. This lets a single ephemeral
+container run `composer install` **and** `npm/yarn/pnpm install` + asset builds,
+while the long-running runtime containers stay lean.
+
+#### Supported Versions
+
+Mirrors the PHP images: 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5.
+
+#### Getting the images
+
+```bash
+docker image pull meghsh/builder:8.3
+```
+
+#### Using the image
+
+Run as an ephemeral, throwaway build container. Pass `--user` so build artifacts
+are written to the bind-mounted release directory with the correct ownership, and
+point caches at a writable path:
+
+```bash
+docker run --rm \
+  --user "$(id -u):$(id -g)" \
+  --env HOME=/tmp --env COMPOSER_HOME=/tmp/composer \
+  --volume "$PWD":/app --workdir /app \
+  meghsh/builder:8.3 bash -c '
+    composer install --no-dev --optimize-autoloader --no-interaction
+    npm ci && npm run build'
+```
+
+Select the tag matching the site's PHP version (`meghsh/builder:8.3`); the right
+PHP binary is already the default in that image — no per-binary selection needed.
+
+#### Building
+
+```bash
+./builder/build.sh   # requires the matching meghsh/php:<version> tags to exist
+```
+
+#### Testing the Builder image
+
+```bash
+container-structure-test test --image meghsh/builder:8.3 --config builder-structure-test.yaml
+```

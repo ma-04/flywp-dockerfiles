@@ -1,0 +1,39 @@
+schemaVersion: '2.0.0'
+
+commandTests:
+  - name: "PHP is installed"
+    command: "php"
+    args: ["-v"]
+    expectedOutput: ["PHP"]
+
+  - name: "Composer is installed"
+    command: "composer"
+    args: ["--version"]
+    expectedOutput: ["Composer"]
+
+  - name: "WP-CLI is installed"
+    command: "wp"
+    args: ["--info", "--allow-root"]
+    expectedOutput: ["WP-CLI"]
+
+  - name: "Node is installed"
+    command: "node"
+    args: ["-v"]
+    expectedOutput: ["v"]
+
+  - name: "npm is installed"
+    command: "npm"
+    args: ["-v"]
+
+  - name: "Yarn is installed"
+    command: "yarn"
+    args: ["-v"]
+
+  - name: "PNPM is installed"
+    command: "pnpm"
+    args: ["-v"]
+
+  - name: "Git is installed"
+    command: "git"
+    args: ["--version"]
+    expectedOutput: ["git version"]
