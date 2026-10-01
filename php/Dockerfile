@@ -66,10 +66,7 @@ RUN if [[ "$PHP_VERSION" == "8.3"* ]]; then \
         install-php-extensions imagick; \
     fi
 
-# Install relay last: once enabled, its arm64 build fails to start under QEMU
-# user-mode emulation (used for linux/arm64 in CI), which kills every later
-# `php` invocation, including install-php-extensions' load check. It works on
-# native arm64, so only skip the check there.
+# Install relay last; it can't load under QEMU arm64 emulation, so skip its check there
 RUN if [ "$(uname -m)" = "aarch64" ]; then \
         IPE_SKIP_CHECK=1 install-php-extensions relay; \
     else \
