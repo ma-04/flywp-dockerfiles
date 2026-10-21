@@ -1,6 +1,7 @@
 #!/bin/sh
 # Run a command up to 5 times, 30 seconds apart.
-# pecl.php.net sometimes returns 504 or "No releases available".
+# pecl.php.net sometimes returns 504 from its CDN. PEAR caches none of these
+# errors, so a retry is a fresh request.
 for attempt in 1 2 3 4 5; do
     "$@" && exit 0
     echo "Attempt $attempt of 5 failed: $*" >&2

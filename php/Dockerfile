@@ -52,6 +52,20 @@ RUN apk add --no-cache ca-certificates wget gnupg && \
 # Retry wrapper for network installs. In /usr/local/sbin, so the final stage does not copy it.
 COPY retry.sh /usr/local/sbin/retry
 
+# pecl.php.net sits behind a CDN that sometimes answers over HTTP/1.1 with a chunked body.
+# PEAR before 1.10.18 (bundled with PHP 7.4, 8.0 and 8.1) cannot read a chunked response, so
+# pecl fails with "does not have REST xml available" or "No releases available". Install the
+# current PEAR from pear.php.net before pecl is used. It is only needed in this stage.
+RUN set -e; \
+    if ! grep -qi 'transfer-encoding' /usr/local/lib/php/PEAR/REST.php; then \
+        echo "Replacing PEAR $(pear version | awk '/^PEAR Version/ { print $3 }') with the current release"; \
+        retry curl -fsSL https://pear.php.net/install-pear-nozlib.phar -o /tmp/install-pear-nozlib.phar; \
+        php -n -dshort_open_tag=0 -dopen_basedir= -derror_reporting=1803 -dmemory_limit=-1 -ddetect_unicode=0 \
+            /tmp/install-pear-nozlib.phar -d /usr/local/lib/php -b /usr/local/bin -dp a -ds a; \
+        rm -f /tmp/install-pear-nozlib.phar; \
+        pear version; \
+    fi
+
 # Install PHP extensions using php-extension-installer
 RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS \
     && curl -L -o /usr/local/bin/install-php-extensions https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \
